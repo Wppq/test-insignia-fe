@@ -4,27 +4,13 @@ import { ChannelSection } from './component/ChannelSection';
 import { Footer } from './component/Footer';
 import { Navbar } from './component/Navbar';
 import { CardContainer } from './component/CardContainer';
-import { useEffect, useState } from 'react';
+import { useFetch } from './hooks/useFetch';
 import { Post } from './models/post.mode';
 
 function App() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch("https://jsonplaceholder.typicode.com/posts");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data: Post[] = await response.json();
-        setPosts(data);
-      } catch (error) {
-        console.error("Failed to fetch posts:", error);
-      }
-    };
-
-    fetchPosts();
-  }, []);
+  const { data: videos, error: errVideos, loading: loadVideos } = useFetch<Post[]>('https://jsonplaceholder.typicode.com/posts');
+  const { data: people, error: errPeople, loading: loadPeople } = useFetch<Post[]>('https://jsonplaceholder.typicode.com/posts');
+  const { data: documents, error: errDocuments, loading: loadDocuments } = useFetch<Post[]>('https://jsonplaceholder.typicode.com/posts');
 
   return (
     <>
@@ -33,25 +19,60 @@ function App() {
         <Navbar />
         <div className='flex flex-col md:flex-row md:justify-between'>
           <div className='flex-grow md:w-3/4'>
-            <CardContainer posts={posts} title='Videos' />
-            <CardContainer posts={posts} title='People' />
-            <CardContainer posts={posts} title='Document' />
+            <>
+              <CardContainer
+                posts={videos || []}
+                title='Videos'
+                loading={loadVideos}
+                error={errVideos ? errVideos.message : null}
+              />
+              <CardContainer
+                posts={people || []}
+                title='People'
+                loading={loadPeople}
+                error={errPeople ? errPeople.message : null}
+              />
+              <CardContainer
+                posts={documents || []}
+                title='Document'
+                loading={loadDocuments}
+                error={errDocuments ? errDocuments.message : null}
+              />
+            </>
           </div>
-          <div className='md:w-1/3 lg:w-2/3 mt-4 md:mt-0 md:ml-4'>
+          <div className='md:w-1/3 lg:w-1/4 mt-4 md:mt-0 md:ml-4'>
             <ActivitySection />
             <ChannelSection />
           </div>
         </div>
         <Footer />
       </main>
+
       {/* Mobile */}
       <main className='md:hidden'>
         <Navbar />
-        <CardContainer posts={posts} title='Videos' />
-        <ActivitySection />
-        <CardContainer posts={posts} title='People' />
-        <ChannelSection />
-        <CardContainer posts={posts} title='Document' />
+        <>
+          <CardContainer
+            posts={videos || []}
+            title='Videos'
+            loading={loadVideos}
+            error={errVideos ? errVideos.message : null}
+          />
+          <ActivitySection />
+          <CardContainer
+            posts={people || []}
+            title='People'
+            loading={loadPeople}
+            error={errPeople ? errPeople.message : null}
+          />
+          <ChannelSection />
+          <CardContainer
+            posts={documents || []}
+            title='Document'
+            loading={loadDocuments}
+            error={errDocuments ? errDocuments.message : null}
+          />
+        </>
         <Footer />
       </main>
     </>
